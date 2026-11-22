@@ -1,0 +1,114 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Shared four-lane Renovate preset: one PR per lane, 3-day release cooldown, automerge for patch/minor and lockfile maintenance, human review for majors and Node.",
+  "extends": [
+    "config:recommended"
+  ],
+  "ignorePresets": [
+    "group:monorepos",
+    "group:recommended",
+    "workarounds:groupings"
+  ],
+  "schedule": [
+    "before 6am"
+  ],
+  "dependencyDashboard": true,
+  "git-submodules": {
+    "enabled": true
+  },
+  "rangeStrategy": "bump",
+  "minimumReleaseAge": "3 days",
+  "internalChecksFilter": "strict",
+  "labels": [
+    "dependencies"
+  ],
+  "prConcurrentLimit": 4,
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/fixtures/**"
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "before 6am on monday"
+    ],
+    "automerge": true,
+    "automergeType": "pr"
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "groupName": "patch and minor updates",
+    "groupSlug": "patch-minor",
+    "automerge": true,
+    "automergeType": "pr"
+  },
+  "packageRules": [
+    {
+      "description": "Daily lane: every patch and minor update (npm, Actions, etc.) in ONE pull request that merges itself once checks are green.",
+      "matchUpdateTypes": [
+        "patch",
+        "minor",
+        "digest",
+        "pin"
+      ],
+      "groupName": "patch and minor updates",
+      "groupSlug": "patch-minor",
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Weekly lane: major updates wait together for a person once a week.",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "groupName": "major updates",
+      "groupSlug": "weekly",
+      "schedule": [
+        "before 6am on monday"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Vendored git submodules join the weekly human-review lane.",
+      "matchManagers": [
+        "git-submodules"
+      ],
+      "groupName": "major updates",
+      "groupSlug": "weekly",
+      "schedule": [
+        "before 6am on monday"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Keep engines.node floors under human control: replace leaves a satisfied >= range alone.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchDepTypes": [
+        "engines"
+      ],
+      "rangeStrategy": "replace",
+      "automerge": false
+    },
+    {
+      "description": "Node moves on its own, weekly, read by a person: .nvmrc, Dockerfile FROM node:, and @types/node in ONE pull request.",
+      "matchDepNames": [
+        "node",
+        "@types/node"
+      ],
+      "matchManagers": [
+        "nvm",
+        "npm",
+        "dockerfile"
+      ],
+      "groupName": "Node",
+      "groupSlug": "node",
+      "schedule": [
+        "before 6am on monday"
+      ],
+      "automerge": false,
+      "separateMajorMinor": false
+    }
+  ]
+}
